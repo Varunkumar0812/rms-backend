@@ -25,7 +25,7 @@ export default class Review extends BaseModel {
   public suggestions: string
 
   @column()
-  public user_id: number
+  public userId: number
 
   @belongsTo(() => User)
   public user: BelongsTo<typeof User>

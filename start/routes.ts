@@ -18,4 +18,5 @@
 |
 */
 
+import "../app/Routes/AuthRoutes.ts";
 import "../app/Routes/ReviewRoutes.ts";
