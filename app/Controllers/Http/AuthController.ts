@@ -1,4 +1,5 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { ValidationException } from '@ioc:Adonis/Core/Validator'
 import User from 'App/Models/User';
 import LoginValidator from 'App/Validators/LoginValidator';
 import RegisterValidator from 'App/Validators/RegisterValidator';
@@ -14,6 +15,7 @@ export default class AuthController {
         }
         catch (err) {
             response.status(500);
+            if (err instanceof ValidationException) response.status(400);
             return err.messages?.errors;
         }
     }
@@ -27,7 +29,7 @@ export default class AuthController {
             return { token, username: user.username, user_id: user.id };
         }
         catch (err) {
-            response.status(500);
+            response.status(err instanceof ValidationException ? 400 : 500);
             return err.messages?.errors;
         }
     }
@@ -38,7 +40,7 @@ export default class AuthController {
             response.json({ message: "Logged Out sucessfully!" });
         }
         catch (err) {
-            response.status(500);
+            response.status(err instanceof ValidationException ? 400 : 500);
             return err;
         }
     }

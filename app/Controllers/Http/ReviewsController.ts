@@ -24,8 +24,7 @@ export default class ReviewsController {
             return await query;
         }
         catch (err) {
-            response.status(500);
-            if (err instanceof ValidationException) response.status(400);
+            response.status(err instanceof ValidationException ? 400 : 500);
             return err?.messages?.errors;
         }
     }
@@ -42,8 +41,7 @@ export default class ReviewsController {
             return await Review.findOrFail(id);
         }
         catch (err) {
-            response.status(500);
-            if (err instanceof ValidationException) response.status(400);
+            response.status(err instanceof ValidationException ? 400 : 500);
             return err?.messages?.errors;
         }
     }
@@ -55,8 +53,7 @@ export default class ReviewsController {
             return await Review.createMany([payload]);
         }
         catch (err) {
-            response.status(500);
-            if (err instanceof ValidationException) response.status(400);
+            response.status(err instanceof ValidationException ? 400 : 500);
             return err?.messages?.errors;
         }
     }
@@ -76,8 +73,7 @@ export default class ReviewsController {
             return review;
         }
         catch (err) {
-            response.status(500);
-            if (err instanceof ValidationException) response.status(400);
+            response.status(err instanceof ValidationException ? 400 : 500);
             return err?.messages?.errors;
         }
     }
@@ -97,8 +93,7 @@ export default class ReviewsController {
             return review;
         }
         catch (err) {
-            response.status(500);
-            if (err instanceof ValidationException) response.status(400);
+            response.status(err instanceof ValidationException ? 400 : 500);
             return err?.messages?.errors;
         }
     }
@@ -116,8 +111,7 @@ export default class ReviewsController {
             return await Review.query().where("user_id", id).preload('user');
         }
         catch (err) {
-            response.status(500);
-            if (err instanceof ValidationException) response.status(400);
+            response.status(err instanceof ValidationException ? 400 : 500);
             return err?.messages?.errors;
         }
     }

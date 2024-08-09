@@ -5,7 +5,7 @@ export default class GetReviewValidator {
   constructor(protected ctx: HttpContextContract) { }
 
   public schema = schema.create({
-    rating: schema.enum.optional([1, 2, 3, 4, 5]),
+    rating: schema.enum.optional(['1', '2', '3', '4', '5']),
     type: schema.enum.optional(['University Review', 'Food Review', 'Hotel Review', 'Product Review', 'Travel Review']),
     sortBy: schema.enum.optional(['title', 'type', 'rating']),
     sortOrder: schema.enum.optional(["asc", "desc"]),
