@@ -14,17 +14,20 @@ export default class ReviewsController {
         try {
             const payload = await request.validate(GetReviewValidator);
             const { rating, type, sortBy, sortOrder, page, limit } = payload;
-            const query = Review.query().preload('user');
 
-            if (rating) query.where("rating", rating);
-            if (type) query.where('type', type);
-            if ((sortBy && Review.$hasColumn(sortBy))) query.orderBy(sortBy, sortOrder || 'asc');
-            if (page && limit) query.paginate(page, limit);
+            const query = Review.query()
+                .if(rating, (query) => query.where("rating", rating))
+                .if(type, (query) => query.where("type", type))
+                .if(sortBy, (query) => query.orderBy(sortBy, sortOrder || 'asc'))
+                .preload('user')
+                .paginate(page || 1, limit || 2);
 
             return await query;
         }
         catch (err) {
             response.status(err instanceof ValidationException ? 400 : 500);
+            console.log(err);
+
             return err?.messages?.errors;
         }
     }
