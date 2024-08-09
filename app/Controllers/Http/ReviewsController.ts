@@ -1,37 +1,50 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { ValidationException } from '@ioc:Adonis/Core/Validator'
 import Review from 'App/Models/Review'
 import CreateReviewValidator from 'App/Validators/CreateReviewValidator';
+import GetReviewValidator from 'App/Validators/GetReviewValidator';
 import UpdateReviewValidator from 'App/Validators/UpdateReviewValidator';
+import ReviewParamsIdValidator from 'App/Validators/ReviewParamsIdValidator';
+import UserParamsIdValidator from 'App/Validators/UserParamsIdValidator';
 
 export default class ReviewsController {
 
     // Get all reviews - Includes Filter, Sort and Pagination
     public async index({ request, response }: HttpContextContract) {
         try {
-            const { rating, type, sortBy, sortOrder, page, limit } = request.qs();
+            const payload = await request.validate(GetReviewValidator);
+            const { rating, type, sortBy, sortOrder, page, limit } = payload;
             const query = Review.query().preload('user');
 
             if (rating) query.where("rating", rating);
             if (type) query.where('type', type);
-            if ((sortBy && Review.$hasColumn(sortBy))) query.orderBy(sortBy, sortOrder || 'ASC');
-            if (page && limit) query.paginate(page, limit)
+            if ((sortBy && Review.$hasColumn(sortBy))) query.orderBy(sortBy, sortOrder || 'asc');
+            if (page && limit) query.paginate(page, limit);
 
             return await query;
         }
         catch (err) {
             response.status(500);
-            return err?.messages?.err;
+            if (err instanceof ValidationException) response.status(400);
+            return err?.messages?.errors;
         }
     }
 
     // Get a single review
-    public async show({ response, params }: HttpContextContract) {
+    public async show({ request, response, params }: HttpContextContract) {
         try {
-            return await Review.findOrFail(params.id);
+            const ParamsValidator = new ReviewParamsIdValidator({});
+            const { id } = await request.validate({
+                schema: ParamsValidator.schema,
+                data: params,
+                messages: ParamsValidator.messages,
+            })
+            return await Review.findOrFail(id);
         }
         catch (err) {
             response.status(500);
-            return err?.messages?.err;
+            if (err instanceof ValidationException) response.status(400);
+            return err?.messages?.errors;
         }
     }
 
@@ -43,6 +56,7 @@ export default class ReviewsController {
         }
         catch (err) {
             response.status(500);
+            if (err instanceof ValidationException) response.status(400);
             return err?.messages?.errors;
         }
     }
@@ -50,37 +64,61 @@ export default class ReviewsController {
     // Update a review
     public async update({ request, response, params }: HttpContextContract) {
         try {
+            const ParamsValidator = new ReviewParamsIdValidator({});
+            const { id } = await request.validate({
+                schema: ParamsValidator.schema,
+                data: params,
+                messages: ParamsValidator.messages,
+            })
             const payload = await request.validate(UpdateReviewValidator);
-            const review = (await Review.findOrFail(params.id)).merge(payload).save();
+
+            const review = (await Review.findOrFail(id)).merge(payload).save();
             return review;
         }
         catch (err) {
             response.status(500);
-            return err?.messages?.err;
+            if (err instanceof ValidationException) response.status(400);
+            return err?.messages?.errors;
         }
     }
 
     // Delete a review
-    public async destroy({ response, params }: HttpContextContract) {
+    public async destroy({ request, response, params }: HttpContextContract) {
         try {
-            const review = await Review.findOrFail(params.id);
+            const ParamsValidator = new ReviewParamsIdValidator({});
+            const { id } = await request.validate({
+                schema: ParamsValidator.schema,
+                data: params,
+                messages: ParamsValidator.messages,
+            })
+
+            const review = await Review.findOrFail(id);
             review.delete();
             return review;
         }
         catch (err) {
             response.status(500);
-            return err?.message?.err;
+            if (err instanceof ValidationException) response.status(400);
+            return err?.messages?.errors;
         }
     }
 
     // Get the reviews of a specifc user
-    public async getUserReviews({ response, params }: HttpContextContract) {
+    public async getUserReviews({ request, response, params }: HttpContextContract) {
         try {
-            return await Review.query().where("user_id", params.id).preload('user');
+            const ParamsValidator = new UserParamsIdValidator({});
+            const { id } = await request.validate({
+                schema: ParamsValidator.schema,
+                data: params,
+                messages: ParamsValidator.messages
+            })
+
+            return await Review.query().where("user_id", id).preload('user');
         }
         catch (err) {
             response.status(500);
-            return err.messages.err;
+            if (err instanceof ValidationException) response.status(400);
+            return err?.messages?.errors;
         }
     }
 }
