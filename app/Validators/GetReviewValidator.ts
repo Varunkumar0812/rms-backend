@@ -9,6 +9,7 @@ export default class GetReviewValidator {
     type: schema.enum.optional(['University Review', 'Food Review', 'Hotel Review', 'Product Review', 'Travel Review']),
     sortBy: schema.enum.optional(['title', 'type', 'rating']),
     sortOrder: schema.enum.optional(["asc", "desc"]),
+    searchFor: schema.string.optional(),
     page: schema.number.optional(),
     limit: schema.number.optional()
   })
@@ -19,6 +20,7 @@ export default class GetReviewValidator {
     'sortBy.enum': "Sorting attribute must take values of ['title', 'type', 'rating']",
     'sortOrder.enum': "Sorting order must take values of ['asc', 'desc']",
     'page.number': "Number of pages must be a number",
-    'limit.number': "Number of records per page must be a number"
+    'limit.number': "Number of records per page must be a number",
+    'searchFor.string': "The search query must be a string"
   }
 }

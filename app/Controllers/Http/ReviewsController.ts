@@ -13,22 +13,20 @@ export default class ReviewsController {
     public async index({ request, response }: HttpContextContract) {
         try {
             const payload = await request.validate(GetReviewValidator);
-            const { rating, type, sortBy, sortOrder, page, limit } = payload;
+            const { rating, type, sortBy, sortOrder, page, limit, searchFor } = payload;
 
             const query = Review.query()
+                .if(searchFor, (query) => query.whereILike('title', `%${searchFor}%`).orWhereILike('type', `%${searchFor}%`).orWhereILike('pros', `%${searchFor}%`).orWhereILike('cons', `%${searchFor}%`).orWhereILike('suggestions', `%${searchFor}%`))
                 .if(rating, (query) => query.where("rating", rating))
                 .if(type, (query) => query.where("type", type))
-                .if(sortBy, (query) => query.orderBy(sortBy, sortOrder || 'asc'))
-                .preload('user')
+                .if(sortBy, (query) => query.orderBy(sortBy, sortOrder || 'asc')).preload('user')
                 .paginate(page || 1, limit || 2);
 
             return await query;
         }
         catch (err) {
             response.status(err instanceof ValidationException ? 400 : 500);
-            console.log(err);
-
-            return err?.messages?.errors;
+            return err;
         }
     }
 
