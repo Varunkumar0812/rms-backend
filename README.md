@@ -28,4 +28,4 @@ Validation is a crucial feature in any application. AdonisJS makes validation st
 
 ## Frontend Repository
 
-For the frontend implementation using React Js and Tailwind CSS, please visit the [Frontend Repository](https://github.com/Varunkumar0812/rms-frontend).
+For the frontend implementation using Vue.js, Vuetify and Tailwind CSS, please visit the [Frontend Repository](https://github.com/Varunkumar0812/rms-frontend).
